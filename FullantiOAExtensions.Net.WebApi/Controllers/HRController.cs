@@ -63,9 +63,12 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
         [HttpGet]
         public async Task<dynamic> Departments(string token, string? keyword = null)
         {
-            string url = oaUrl + "/orgDepartments/" + groupId;
-            var headers = new Dictionary<string, string> { { "token", token } };
-            var source = await httpUtil.GetAsync<List<dynamic>>(url, headers);
+            string url = $"{oaUrl}/orgDepartments/{groupId}";
+            var source = await httpUtil.GetAsync<List<dynamic>>(url, new Dictionary<string, string>
+            {
+                { "Accept", "application/json" },
+                { "token", token }
+            });
             source.ToList().ForEach(x => x.id = x.id.ToString());
             source = source.FindAll(x => !x.name.ToString().Contains("组") && !x.name.ToString().Contains("专员") && !x.name.ToString().Contains("助理"));
             dynamic result;
@@ -85,9 +88,12 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
         [HttpGet]
         public async Task<dynamic> Poistions(string token, string? keyword=null)
         {
-            string url = oaUrl + "/orgPosts/" + groupId;
-            var headers = new Dictionary<string, string> { { "token", token } };
-            var source = await httpUtil.GetAsync<List<dynamic>>(url, headers);
+            string url = $"{oaUrl}/orgPosts/{groupId}";
+            var source = await httpUtil.GetAsync<List<dynamic>>(url, new Dictionary<string, string>
+            {
+                { "Accept", "application/json" },
+                { "token", token }
+            });
             source.ToList().ForEach(x => x.id = x.id.ToString());
             dynamic result = source.Select(y => new { y.id, y.name });
             if (!string.IsNullOrEmpty(keyword))
@@ -103,9 +109,12 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
         [HttpGet]
         public async Task<dynamic> Levels(string token)
         {
-            string url = oaUrl + "/orgLevels/" + groupId;
-            var headers = new Dictionary<string, string> { { "token", token } };
-            var resp = await httpUtil.GetAsync<List<dynamic>>(url, headers);
+            string url = $"{oaUrl}/orgLevels/{groupId}";
+            var resp = await httpUtil.GetAsync<List<dynamic>>(url, new Dictionary<string, string>
+            {
+                { "Accept", "application/json" },
+                { "token", token }
+            });
             resp.ForEach(x => x.id = x.id.ToString());
             return resp;
         }
@@ -119,12 +128,12 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
         [HttpGet]
         public async Task<dynamic> Persionnel(string token, string workNo)
         {
-            string url = oaUrl + "/orgMembers/code/" + workNo;
-            var headers = new Dictionary<string, string>
+            string url = $"{oaUrl}/orgMembers/code/{workNo}";
+            var resp = await httpUtil.GetAsync<dynamic>(url, new Dictionary<string, string>
             {
+                { "Accept", "application/json" },
                 { "token", token }
-            };
-            var resp = await httpUtil.GetAsync<dynamic>(url, headers);
+            });
             return resp;
         }
 
