@@ -132,7 +132,14 @@ namespace FullantiOAExtensions.Core.Models.HR
 
         [Description("本人签名")]
         public string Signature { get; set; }
-        
+
+        [Description("学历档案")]
+        public string EducationCertificate { get; set; }
+
+        [Description("身份证照片附件")]
+        public string IdCard { get; set; }
+
+
         public string EducationHistory { get; set; }
 
         public string FamilyMembers { get; set; }

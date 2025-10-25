@@ -2,6 +2,7 @@
 using FullantiOAExtensions.Core.Models.HR;
 using FullantiOAExtensions.Core.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 
 namespace FullantiOAExtensions.Net.WebApi.Controllers
@@ -51,7 +52,7 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
             {
                 { "Accept", "application/json" }
             });
-            return responseContent.id;
+            return responseContent.id.ToString();
         }
 
         /// <summary>
@@ -67,7 +68,7 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
             var source = await httpUtil.GetAsync<List<dynamic>>(url, new Dictionary<string, string>
             {
                 { "Accept", "application/json" },
-                { "token", token }
+                { "token", token.Trim('"') }
             });
             source.ToList().ForEach(x => x.id = x.id.ToString());
             source = source.FindAll(x => !x.name.ToString().Contains("组") && !x.name.ToString().Contains("专员") && !x.name.ToString().Contains("助理"));
@@ -92,7 +93,7 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
             var source = await httpUtil.GetAsync<List<dynamic>>(url, new Dictionary<string, string>
             {
                 { "Accept", "application/json" },
-                { "token", token }
+                { "token", token.Trim('"') }
             });
             source.ToList().ForEach(x => x.id = x.id.ToString());
             dynamic result = source.Select(y => new { y.id, y.name });
@@ -113,7 +114,7 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
             var resp = await httpUtil.GetAsync<List<dynamic>>(url, new Dictionary<string, string>
             {
                 { "Accept", "application/json" },
-                { "token", token }
+                { "token", token.Trim('"') }
             });
             resp.ForEach(x => x.id = x.id.ToString());
             return resp;
@@ -132,7 +133,7 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
             var resp = await httpUtil.GetAsync<dynamic>(url, new Dictionary<string, string>
             {
                 { "Accept", "application/json" },
-                { "token", token }
+                { "token", token.Trim('"') }
             });
             return resp;
         }
@@ -184,21 +185,21 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
                 #endregion
 
                 #region 附件
-                //附件
                 string uploadUri = oaUrl + uploadUrl.Replace("@token", token);
                 var thirdAttachments = new List<Dictionary<string, object>>();
+
                 //本人照片
                 var file1 = new FileInfo(model.Picture!);
                 var longId1 = httpFile.Upload(file1, uploadUri);
                 long guid1 = Guid.NewGuid().GetHashCode();
-                var thirdAttachment1 = new Dictionary<string, object>
+                thirdAttachments.Add(new Dictionary<string, object>
                 {
                     { "subReference", guid1 },
                     { "fileUrl", longId1 },
                     { "sort", 1 }
-                };
-                thirdAttachments.Add(thirdAttachment1);
+                });
                 personnel["上传照片"] = guid1.ToString();
+
                 //本人签名
                 string savePath = Path.Combine(webHostEnvironment.ContentRootPath, "Upload");
                 string fileName = Guid.NewGuid().ToString() + ".jpg";
@@ -211,14 +212,50 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
                 var file2 = new FileInfo(Path.Combine(savePath, fileName));
                 var longId2 = httpFile.Upload(file2, uploadUri);
                 long guid2 = Guid.NewGuid().GetHashCode();
-                var thirdAttachment2 = new Dictionary<string, object>
+                thirdAttachments.Add(new Dictionary<string, object>
                 {
                     { "subReference", guid2 },
                     { "fileUrl", longId2 },
                     { "sort", 2 }
-                };
-                thirdAttachments.Add(thirdAttachment2);
+                });
                 personnel["本人签名"] = guid2.ToString();
+
+                //学历证书
+                var file3 = new FileInfo(model.EducationCertificate);
+                var longId3 = httpFile.Upload(file3, uploadUri);
+                long guid3 = Guid.NewGuid().GetHashCode();
+                thirdAttachments.Add(new Dictionary<string, object>
+                {
+                    { "subReference", guid3 },
+                    { "fileUrl", longId3 },
+                    { "sort", 3 }
+                });
+                personnel["学历档案"] = guid3.ToString();
+
+                //身份证
+                long guid4 = Guid.NewGuid().GetHashCode();
+                var arys = model.IdCard.Split(',');
+                for (int i = 0; i < arys.Length; i++)
+                {
+                    var fileItem = new FileInfo(arys[i]);
+                    var longId = httpFile.Upload(fileItem, uploadUri);
+                    thirdAttachments.Add(new Dictionary<string, object>
+                    {
+                        { "subReference", guid4 },
+                        { "fileUrl", longId },
+                        { "sort", i + 4 }
+                    });
+                }
+                //var file4 = new FileInfo(model.IdCard);
+                //var longId4 = httpFile.Upload(file4, uploadUri);
+                //long guid4 = Guid.NewGuid().GetHashCode();
+                //thirdAttachments.Add(new Dictionary<string, object>
+                //{
+                //    { "subReference", guid4 },
+                //    { "fileUrl", longId4 },
+                //    { "sort", 4 }
+                //});
+                personnel["身份证照片附件"] = guid4.ToString();
                 #endregion
 
                 #region 教育、家庭、工作信息
