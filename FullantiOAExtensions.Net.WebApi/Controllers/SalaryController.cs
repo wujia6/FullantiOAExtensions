@@ -378,17 +378,18 @@ namespace FullantiOAExtensions.Net.WebApi.Controllers
                     string htmlUrl = $"{configHelper.GetAppSettings<string>("ExteriorServerUrl")}/OA/gzt.html?code={HttpUtility.UrlEncode(code)}&month={src.Month}";
                     var msg = new Dictionary<string, object>
                     {
-                        { "thirdpartyRegisterCode",3004 },
-                        { "thirdpartyMessageId", messageId },
-                        { "messageContent", "您的" + src.Month + "月份薪资条明细，请注意保密！如有疑问，可在薪资条发放后5个工作日内联系相关人员进行处理" },
-                        { "thirdpartySenderId", staff.loginName.ToString() },
-                        { "thirdpartyReceiverId", src.WorkNo },
-                        { "creation_date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") },
-                        { "messageH5URL", htmlUrl },
-                        { "messageURL", htmlUrl },
-                        { "noneBindingSender", staff.loginName.ToString() },
-                        { "noneBindingReceiver", src.WorkNo },
-                        { "messageType", 1 }
+                        { "thirdpartyRegisterCode",3004 },                                                                                      //第三方应用注册编码
+                        { "thirdpartyMessageId", messageId },                                                                                   //第三方消息ID（时间戳）
+                        { "messageTitle", src.Month + "月份薪资条" },                                                                             //消息标题
+                        { "messageContent", "您的" + src.Month + "月份薪资条明细，请注意保密！如有疑问，可在薪资条发放后5个工作日内联系相关人员进行处理" },      //消息内容
+                        { "thirdpartySenderId", staff.loginName.ToString() },                                                                   //第三方发送者ID（登录名）
+                        { "thirdpartyReceiverId", src.WorkNo },                                                                                 //第三方接收者ID（登录名）
+                        { "creation_date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") },                                                      //消息创建时间
+                        { "messageH5URL", htmlUrl },                                                                                            //消息H5链接
+                        { "messageURL", htmlUrl },                                                                                              //消息PC链接
+                        { "noneBindingSender", staff.loginName.ToString() },                                                                    //无绑定发送者
+                        { "noneBindingReceiver", src.WorkNo },                                                                                  //无绑定接收者
+                        { "messageType", 1 }                                                                                                    //消息类型（1-普通消息，2-紧急消息）
                     };
                     messages.Add(msg);
                     codes += "'"+src.WorkNo + "',";
